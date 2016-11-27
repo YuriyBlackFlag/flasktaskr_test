@@ -5,6 +5,9 @@ from datetime import datetime
 from flask import Flask, render_template, request, session, \
     flash, redirect, url_for
 from functools import wraps
+
+from sqlalchemy.exc import IntegrityError
+
 from forms import AddTaskForm, LoginForm, RegisterForm
 from flask_sqlalchemy import SQLAlchemy
 
@@ -45,10 +48,14 @@ def register_user():
                 form.email.data,
                 form.password.data,
             )
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Thanks for registering. Please login.')
-            return redirect(url_for("login"))
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                flash('Thanks for registering. Please login.')
+                return redirect(url_for("login"))
+            except IntegrityError:
+                error = 'That username and/or email already exist'
+                return render_template('register.html', form=form, error=error)
     return render_template('register.html', form=form, error=error)
 
 
@@ -72,6 +79,7 @@ def login():
 
 
 @app.route("/logout")
+@login_required
 def logout():
     session.pop("logged_in", None)
     session.pop('user_id', None)
@@ -79,14 +87,22 @@ def logout():
     return redirect(url_for("login"))
 
 
+@login_required
+def open_tasks():
+    return db.session.query(Task).filter_by(status='1').order_by(Task.due_date.asc())
+
+
+@login_required
+def closed_tasks():
+    return db.session.query(Task).filter_by(status='0').order_by(Task.due_date.asc())
+
+
 @app.route("/tasks")
 @login_required
 def tasks():
-    open_tasks = db.session.query(Task).filter_by(status='1').order_by(Task.due_date.asc())
-    closed_tasks = db.session.query(Task).filter_by(status='0').order_by(Task.due_date.asc())
     return render_template("tasks.html", form=AddTaskForm(request.form),
-                           open_tasks=open_tasks,
-                           closed_tasks=closed_tasks,
+                           open_tasks=open_tasks(),
+                           closed_tasks=closed_tasks(),
                            )
 
 
@@ -94,10 +110,14 @@ def tasks():
 @login_required
 def new_task():
     form = AddTaskForm(request.form)
+    error = None
     if request.method == 'POST':
         if form.validate_on_submit():
+            task_id = db.session.query(db.func.max(Task.task_id)).scalar()
+            if task_id is None:
+                task_id = 0
             new_task = Task(
-                db.session.query(db.func.max(Task.task_id)).scalar() + 1,
+                task_id + 1,
                 form.name.data,
                 form.due_date.data,
                 datetime.utcnow(),
@@ -108,7 +128,18 @@ def new_task():
             db.session.add(new_task)
             db.session.commit()
             flash('New entry was successfully posted. Thanks.')
-    return redirect(url_for('tasks'))
+            return redirect(url_for('tasks'))
+        else:
+            return render_template('tasks.html', form=form, error=error, open_tasks=open_tasks(),
+                                   closed_tasks=closed_tasks())
+    return render_template("tasks.html", form=form, error=error, open_tasks=open_tasks(),
+                           closed_tasks=closed_tasks())
+
+
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash("Error in the {} field - {}".format(getattr(form.field).label.text, error))
 
 
 @app.route('/complete/<int:task_id>/')
