@@ -1,19 +1,14 @@
-import cx_Oracle
-from __config import DATABASE
+from views import db
+from models import Task
+from datetime import date
+
+# create the database and the db table
+db.create_all()
+# insert data
+# db.session.add(Task(1, "Finish this tutorial", date(2015, 3, 13), 10,
+#                     1))
+# db.session.add(Task(2, "Finish Real Python", date(2015, 3, 13), 10, 1))
+# commit the changes
+db.session.commit()
 
 # create a new database if the database doesn't already exist
-with cx_Oracle.connect(DATABASE) as connection:
-    c = connection.cursor()
-    # create the table
-    # insert dummy data into the table
-    c.execute(
-        """CREATE TABLE tasks(id NUMBER PRIMARY KEY,
- name VARCHAR2(40) NOT NULL,
- due_date VARCHAR2(150)NOT NULL,
-  priority NUMBER NOT NULL,
-  status NUMBER NOT NULL)""")
-    c.execute("""INSERT INTO tasks (id,name, due_date, priority, status)
-VALUES(1,'Finish this tutorial', '03/25/2015', 10, 1)""")
-    c.execute(
-        """INSERT INTO tasks (id,name, due_date, priority, status)
-        VALUES(2,'Finish Real Python Course 2', '03/25/2015', 10, 1)""")
