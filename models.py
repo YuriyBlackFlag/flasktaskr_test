@@ -35,12 +35,14 @@ class User(db.Model):
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(15), nullable=False)
     tasks = db.relationship('Task', backref='poster')
+    role = db.Column(db.String(15), default='user')
 
-    def __init__(self, user_id, name=None, email=None, password=None):
+    def __init__(self, user_id, name=None, email=None, password=None, role=None):
         self.id = user_id
         self.name = name
         self.email = email
         self.password = password
+        self.role = role
 
     def __repr__(self):
         return '<User {0}>'.format(self.name)
