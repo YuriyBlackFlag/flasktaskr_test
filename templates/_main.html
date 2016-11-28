@@ -2,16 +2,22 @@
 <html>
 <head>
     <title>Welcome to FlaskTaskr!!</title>
+    <link
+            href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/yeti/bootstrap.min.css"
+            rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static',
-filename='css/main.css') }}">
+    filename='css/main.css') }}">
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script
+            src="//maxcdnbootstrapcdncom/bootstrap/334/js/bootstrap.min.js"></script>
 </head>
 <body>
 <div class="page">
     {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
+        <div class="flash">{{ message }}</div>
     {% endfor %}
     {% if error %}
-    <p class="error"><strong>Error:</strong> {{ error }}</p>
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
     {% endif %}
     {% block content %}
     {% endblock %}
