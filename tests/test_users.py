@@ -1,7 +1,8 @@
 import unittest
-import os
-from views import app, db
-from models import User
+
+from project import app, db
+
+from project.models import User
 
 
 class UsersTests(unittest.TestCase):

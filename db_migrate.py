@@ -1,7 +1,6 @@
-from datetime import datetime
-
 import cx_Oracle
-from views import db
+
+from project.views import db
 
 # create a new database if the database doesn't already exist
 with cx_Oracle.connect("pyth/123123@127.0.0.1/test") as connection:
