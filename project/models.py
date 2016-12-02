@@ -33,7 +33,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+    password = db.Column(db.VARCHAR(150), nullable=False)
     tasks = db.relationship('Task', backref='poster')
     role = db.Column(db.String(15), default='user')
 
@@ -47,9 +47,6 @@ class User(db.Model):
     def __repr__(self):
         return '<User {0}>'.format(self.name)
 
-    def set_password(self, password):
-        pwhash = bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())
-        self.password = pwhash.decode('utf8')
 
 
 

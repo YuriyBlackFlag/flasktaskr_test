@@ -1,7 +1,9 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
+os.environ['NLS_LANG'] = 'UKRAINIAN_UKRAINE.AL32UTF8'
 app = Flask(__name__)
 app.config.from_pyfile('__config.py')
 db = SQLAlchemy(app)

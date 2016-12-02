@@ -37,8 +37,8 @@ def register_user():
                 user_id + 1,
                 form.name.data,
                 form.email.data,
+                bcrypt.generate_password_hash(form.password.data.encode('utf-8'))
             )
-            new_user.set_password(form.password.data)
             try:
                 db.session.add(new_user)
                 db.session.commit()
