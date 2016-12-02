@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from project import db, bcrypt
+from project import db
+from sqlalchemy.dialects.oracle import RAW
 
 
 class Task(db.Model):
@@ -33,7 +34,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.VARCHAR(150), nullable=False)
+    password = db.Column(RAW(150), nullable=False)
     tasks = db.relationship('Task', backref='poster')
     role = db.Column(db.String(15), default='user')
 
