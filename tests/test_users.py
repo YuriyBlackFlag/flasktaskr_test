@@ -1,6 +1,6 @@
 import unittest
 
-from project import app, db
+from project import app, db, bcrypt
 
 from project.models import User
 
@@ -38,7 +38,7 @@ class UsersTests(unittest.TestCase):
         return self.app.get('/logout', follow_redirects=True)
 
     def create_user(self, user_id, name, email, password):
-        new_user = User(user_id=user_id, name=name, email=email, password=password)
+        new_user = User(user_id=user_id, name=name, email=email, password=bcrypt.generate_password_hash(password))
         db.session.add(new_user)
         db.session.commit()
 
@@ -102,7 +102,7 @@ class UsersTests(unittest.TestCase):
             User(1,
                  "Johnny",
                  "john@doe.com",
-                 "johnny"
+                 "johnny".encode('utf-8')
                  )
         )
         db.session.commit()

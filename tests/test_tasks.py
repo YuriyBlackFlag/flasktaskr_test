@@ -1,6 +1,6 @@
 import unittest
 
-from project import app, db
+from project import app, db, bcrypt
 
 from project.models import User, Task
 
@@ -37,7 +37,10 @@ class TasksTests(unittest.TestCase):
         return self.app.get('/logout', follow_redirects=True)
 
     def create_user(self, user_id, name, email, password):
-        new_user = User(user_id=user_id, name=name, email=email, password=password)
+        new_user = User(user_id=user_id,
+                        name=name,
+                        email=email,
+                        password=bcrypt.generate_password_hash(password))
         db.session.add(new_user)
         db.session.commit()
 
@@ -46,7 +49,7 @@ class TasksTests(unittest.TestCase):
             user_id='2',
             name='Superman',
             email='admin@realpython.com',
-            password='all_powerful',
+            password=bcrypt.generate_password_hash('all_powerful'),
             role='admin'
         )
         db.session.add(new_user)
@@ -163,12 +166,12 @@ class TasksTests(unittest.TestCase):
         self.assertNotIn(b'Delete', response.data)
 
     def test_users_can_see_task_modify_links_for_tasks_created_by_them(self):
-        self.register(1,'Michael', 'michael@realpython.com', 'python', 'python')
+        self.register(1, 'Michael', 'michael@realpython.com', 'python', 'python')
         self.login('Michael', 'python')
         self.app.get('/tasks', follow_redirects=True)
         self.create_task()
         self.logout()
-        self.register(2,'Fletcher', 'fletcher@realpython.com', 'python101','python101')
+        self.register(2, 'Fletcher', 'fletcher@realpython.com', 'python101', 'python101')
         self.login('Fletcher', 'python101')
         self.app.get('/tasks', follow_redirects=True)
         response = self.create_task()
@@ -176,7 +179,7 @@ class TasksTests(unittest.TestCase):
         self.assertIn(b'/complete/2', response.data)
 
     def test_admin_users_can_see_task_modify_links_for_all_tasks(self):
-        self.register(1,'Michael', 'michael@realpython.com',
+        self.register(1, 'Michael', 'michael@realpython.com',
                       'python', 'python')
         self.login('Michael', 'python')
         self.app.get('/tasks', follow_redirects=True)
