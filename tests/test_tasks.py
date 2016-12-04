@@ -10,9 +10,12 @@ class TasksTests(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
+        app.config['DEBUG'] = False
         app.config['SQLALCHEMY_DATABASE_URI'] = 'oracle://py_test:123123@127.0.0.1:1521/test'
         self.app = app.test_client()
         db.create_all()
+
+        self.assertEquals(app.debug, False)
 
     # executed after each test
     def tearDown(self):
